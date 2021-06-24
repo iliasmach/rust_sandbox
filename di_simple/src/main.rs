@@ -43,11 +43,6 @@ impl AsAny for Car {
     }
 }
 
-fn cast<'a, A:'a + AsAny +?Sized, B:'a>(from: &'a A) -> &'a B{
-    let a:&'a dyn Any = from.as_any().clone();
-
-    a.clone().downcast_ref::<&'a B>().unwrap()
-}
 
 impl BaseEntity for Car {
     type ID = String;
@@ -120,7 +115,7 @@ fn main() {
         car_repo: Box::new(CarRepository {}),
     };
 
-    let user_repo = cast::<dyn BaseRepository<ID=i64, Model=Box<dyn BaseEntity<ID=i64>>>, UserRepository>(&*app.user_repo);
+    let user_repo = app.user_repo.as_any().downcast_ref::<UserRepository>().unwrap();
     let car_repo = app.car_repo.as_any().downcast_ref::<CarRepository>().unwrap();
 
     let a = user_repo.find(4);
